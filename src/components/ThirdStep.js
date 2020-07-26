@@ -1,9 +1,10 @@
+import { Stack } from '@chakra-ui/core'
 import React from 'react'
 import { TextInput } from '../form/TextInput'
 
 export const ThirdStep = () => {
   return (
-    <>
+    <Stack spacing={4}>
       <TextInput
         label={"Payment Method"}
         type={"text"}
@@ -16,7 +17,7 @@ export const ThirdStep = () => {
         name={"agreement"}
         placeholder={"agrement..."}
       /> 
-    </>
+    </Stack>
   )
 }
 

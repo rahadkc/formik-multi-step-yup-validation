@@ -1,9 +1,10 @@
+import { Stack } from '@chakra-ui/core'
 import React from 'react'
 import { TextInput } from '../form/TextInput'
 
 export const FirstStep = () => {
   return (
-    <>
+    <Stack spacing={4}>
       <TextInput
         label={"Email"}
         type={"text"}
@@ -16,7 +17,7 @@ export const FirstStep = () => {
         name={"password"}
         placeholder={"Password..."}
       /> 
-    </>
+    </Stack>
   )
 }
 

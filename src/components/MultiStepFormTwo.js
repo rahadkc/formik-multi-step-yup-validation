@@ -1,12 +1,15 @@
-import { Box, Flex, Stack } from "@chakra-ui/core";
+import { Box, Flex, Progress, Spinner, useToast } from "@chakra-ui/core";
+import styled from '@emotion/styled';
+import loadable from '@loadable/component';
 import { Form, Formik } from 'formik';
+import pMinDelay from 'p-min-delay';
 import React, { useState } from 'react';
-import * as yup from 'yup';
-import FinalStep from "./FinalStep";
-import FirstStep from "./FirstStep";
-import SecondStep from "./SecondStep";
-import StepButtonTwo from './StepButtonImplementationTwo';
-import ThirdStep from "./ThirdStep";
+import { firstSchema, secondSchema, thridSchema } from "./Schema";
+
+const AsyncPage = loadable(p => pMinDelay(import(`./${p.path}`), 200), {
+  cacheKey: props => props.path,
+  fallback: <Spinner/>
+})
 
 
 const formData = {
@@ -19,34 +22,33 @@ const formData = {
   agreement: ''
 }
 
-
-const firstSchema = yup.object().shape({
-  email: yup.string().required().email(),
-  password: yup.string().required().min(3).trim()
-})
-const secondSchema = yup.object().shape({
-  username: yup.string().required().trim()
-})
-const thridSchema = yup.object().shape({
-  payment: yup.string().required().trim()
-})
 const schemaArray = [firstSchema, secondSchema, thridSchema]
 
 
 function StepForm() {
+  const toast = useToast()
   const [step, setStep] = useState(1)
   const totalSteps = 4
-
+  
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
   
-
+  
   const submitForm = async (values, formikBag) => {
-    await sleep(1000)
+    await sleep(500)
     alert(JSON.stringify(values, null, 2))
     formikBag.setSubmitting(false)
+    formikBag.resetForm({ values: '' })
+    setStep(1)
+    toast({
+      title: 'You Successfully get caught.',
+      description: "Mu Ha Ha Ha! I've got all your personal information.",
+      status: "success",
+      duration: 9000,
+      isClosable: true
+    })
   }
   
-
+  
   const handleSubmit = (values, formikBag) => {
     const { setSubmitting, setTouched } = formikBag
     if (!isLastStep()) {
@@ -58,13 +60,21 @@ function StepForm() {
     submitForm(values, formikBag)
   }
   
-  
   const nextStep = () => setStep(step => step + 1)
   const prevStep = () => setStep(step => step - 1)
   const isLastStep = () => step === totalSteps 
+  const stepValue = () =>  (100/(totalSteps-1) * (step-1))
+  const StepIndicator = ({step}) => <Indicator>{step}</Indicator>
   
   return (
-    <Flex p={10} justify="center">
+    <Flex direction="column" align="center" p={10} justify="center">
+      <Box w="50%">
+        <Wrap>
+          {Array(totalSteps).fill().map((_,i) => <StepIndicator key={i} step={i+1}/>)}
+        </Wrap>
+        <Progress size="md" value={stepValue()} />
+      </Box>
+
       <Formik
       enableReinitialize
       initialValues={{...formData}}
@@ -72,25 +82,26 @@ function StepForm() {
       onSubmit={handleSubmit}
       >
         {(props) => {
-          const { values, isValid, handleSubmit } = props
+          const { values, isValid, isSubmitting, handleSubmit } = props
           return (
             <Box p={8} w="50%" shadow="lg" >
               <Form>
-                <Stack spacing={8}>
-                  {{
-                    1: <FirstStep />,
-                    2: <SecondStep />,
-                    3: <ThirdStep />,
-                    4: <FinalStep values={values} />,
-                  }[step] || <div/>}
-                  
-                  <StepButtonTwo
-                    back={step > 1 && step < totalSteps}
-                    isValid={isValid}
-                    prevStep={prevStep}
-                    handleSubmit={handleSubmit}
-                  />
-                </Stack>
+                {{
+                  1: <AsyncPage path="FirstStep" />,
+                  2: <AsyncPage path="SecondStep" />,
+                  3: <AsyncPage path="ThirdStep" />,
+                  4: <AsyncPage path="FinalStep" values={values} />,
+                }[step] || <div/>}
+                
+                <AsyncPage
+                  path="ButtonTwo"
+                  back={step > 1}
+                  isLastStep={isLastStep()}
+                  isValid={isValid}
+                  prevStep={prevStep}
+                  isSubmitting={isSubmitting}
+                  handleSubmit={handleSubmit}
+                />
               </Form>
             </Box>
           )
@@ -101,3 +112,31 @@ function StepForm() {
 }
 
 export default StepForm;
+
+
+const Indicator = styled.div`
+width: 40px;
+height: 40px;
+line-height: 40px;
+background-color: #3182ce;
+text-align: center;
+color: white;
+font-size: 20px;
+border-radius: 50%;
+font-weight: bold;
+bottom: 0;
+&:first-of-type {
+  margin-left:-3px;
+}
+&:last-of-type {
+  margin-right:-3px;
+}
+`
+const Wrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: -26px;
+  z-index: 1;
+`
+

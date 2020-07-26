@@ -1,9 +1,10 @@
+import { Stack } from '@chakra-ui/core'
 import React from 'react'
 import { TextInput } from '../form/TextInput'
 
 export const SecondStep = () => {
   return (
-    <>
+    <Stack spacing={4}>
       <TextInput
         label={"User Name"}
         type={"text"}
@@ -22,7 +23,7 @@ export const SecondStep = () => {
         name={"city"}
         placeholder={"Dubai..."}
       />  
-    </>
+    </Stack>
   )
 }
 
