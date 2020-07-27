@@ -1,14 +1,15 @@
-import { Box, Flex, Progress, Spinner, useToast } from "@chakra-ui/core";
+import { Box, Flex, Progress, useToast } from "@chakra-ui/core";
 import styled from '@emotion/styled';
 import loadable from '@loadable/component';
 import { Form, Formik } from 'formik';
 import pMinDelay from 'p-min-delay';
 import React, { useState } from 'react';
 import { firstSchema, secondSchema, thridSchema } from "./Schema";
+import SkeletonUi from './utils/Skeleton';
 
-const AsyncPage = loadable(p => pMinDelay(import(`./${p.path}`), 200), {
+const AsyncPage = loadable(p => pMinDelay(import(`./${p.path}`), 100), {
   cacheKey: props => props.path,
-  fallback: <Spinner/>
+  fallback: <SkeletonUi />
 })
 
 
@@ -34,7 +35,7 @@ function StepForm() {
   
   
   const submitForm = async (values, formikBag) => {
-    await sleep(500)
+    await sleep(1500)
     alert(JSON.stringify(values, null, 2))
     formikBag.setSubmitting(false)
     formikBag.resetForm({ values: '' })

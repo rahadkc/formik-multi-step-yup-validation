@@ -1,6 +1,7 @@
 import { CSSReset, theme, ThemeProvider } from "@chakra-ui/core";
+import loadable from '@loadable/component';
 import React from 'react';
-import MultiStepForm from './components/MultiStepFormTwo';
+const MultiStepForm = loadable(() => import('./components/MultiStepFormTwo'))
 
 function App() {
   return (
